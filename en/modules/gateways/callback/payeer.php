@@ -78,13 +78,29 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign']))
 		"description		" . base64_decode($_POST["m_desc"]) . "\n".
 		"status				" . $_POST["m_status"] . "\n".
 		"sign				" . $_POST["m_sign"] . "\n\n";
-			
+
 	if (!empty($GATEWAY['payeer_logfile']))
 	{
 		file_put_contents($_SERVER['DOCUMENT_ROOT'] . $GATEWAY['payeer_logfile'], $log_text, FILE_APPEND);
 	}
+	
+	if ($_POST["m_sign"] != $sign_hash)
+	{
+		if (!empty($GATEWAY['payeer_email_error']))
+		{
+			$to = $GATEWAY['payeer_email_error'];
+			$subject = "Error payment";
+			$message = "Failed to make the payment through Payeer for the following reasons:\n\n";
+			$message .= " - Do not match the digital signature\n";
+			$message .= "\n" . $log_text;
+			$headers = "From: no-reply@" . $_SERVER['HTTP_HOST'] . "\r\nContent-type: text/plain; charset=utf-8 \r\n";
+			mail($to, $subject, $message, $headers);
+		}
 
-	if ($_POST['m_sign'] == $sign_hash && $_POST['m_status'] == 'success' && $valid_ip)
+		exit ($_POST['m_orderid'] . '|error');
+	}
+
+	if ($_POST['m_status'] == 'success' && $valid_ip)
 	{
 		addInvoicePayment($_POST['m_orderid'], $_POST["m_operation_id"], $payed, '', $gatewaymodule);
 		logTransaction($GATEWAY['name'], $_POST, 'Successful');
@@ -97,11 +113,6 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign']))
 			$to = $GATEWAY['payeer_email_error'];
 			$subject = "Error payment";
 			$message = "Failed to make the payment through Payeer for the following reasons:\n\n";
-			
-			if ($_POST["m_sign"] != $sign_hash)
-			{
-				$message .= " - Do not match the digital signature\n";
-			}
 			
 			if ($_POST['m_status'] != "success")
 			{

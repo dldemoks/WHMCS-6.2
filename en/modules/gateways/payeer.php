@@ -50,7 +50,7 @@ function payeer_link($params)
 	$m_shop = $params['payeer_shop'];
 	$m_orderid = $params['invoiceid'];
 	$m_amount = number_format($params['amount'], 2, '.', '');
-	$m_curr = $params['currency'];
+	$m_curr = ($params['currency'] == 'RUR') ? 'RUB' : $params['currency'];
 	$m_desc = base64_encode($params['description']);
 	$m_key = $params['payeer_secret_key'];
 	$m_lang = $params['clientdetails']['language'] == 'russian' ? 'ru' : 'en';

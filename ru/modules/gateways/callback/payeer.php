@@ -91,7 +91,6 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign']))
 	
 	if (!$err)
 	{
-
 		switch ($_POST['m_status'])
 		{
 			case 'success':

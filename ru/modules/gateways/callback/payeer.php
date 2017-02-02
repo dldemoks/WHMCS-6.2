@@ -44,6 +44,8 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign']))
 		file_put_contents($_SERVER['DOCUMENT_ROOT'] . $log_file, $log_text, FILE_APPEND);
 	}
 	
+	checkCbInvoiceID($_POST['m_orderid'], $GATEWAY['name']);
+	
 	// проверка цифровой подписи и ip
 
 	$sign_hash = strtoupper(hash('sha256', implode(":", array(
@@ -94,13 +96,15 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign']))
 		switch ($_POST['m_status'])
 		{
 			case 'success':
-				addInvoicePayment($_POST['m_orderid'], $_POST["m_operation_id"], $payed, '', $gatewaymodule);
+				echo $_POST['m_orderid'] . '|success';
+				checkCbTransID($_POST["m_operation_id"]);
+				addInvoicePayment($_POST['m_orderid'], $_POST["m_operation_id"], $_POST["m_amount"], '', $gatewaymodule);
 				logTransaction($GATEWAY['name'], $_POST, 'Successful');
 				break;
 				
 			default:
 				$message .= " - статус платежа не является success\n";
-				logTransaction($GATEWAY["name"], $event, "Unsuccessful");
+				logTransaction($GATEWAY["name"], $_POST, "Unsuccessful");
 				$err = true;
 				break;
 		}
@@ -118,10 +122,6 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign']))
 			mail($to, 'Ошибка оплаты', $message, $headers);
 		}
 		
-		exit($_POST['m_orderid'] . '|error');
-	}
-	else
-	{
-		exit($_POST['m_orderid'] . '|success');
+		echo $_POST['m_orderid'] . '|error';
 	}
 }

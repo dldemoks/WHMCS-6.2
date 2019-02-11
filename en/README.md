@@ -5,4 +5,4 @@ Payment module Payeer
 To install a plugin download all files.
 Then follow the provided instructions.
 
-Support WHMCS CMS version 6.2
+Support of version CMS WHMCS 6.2, WHMCS 7.7

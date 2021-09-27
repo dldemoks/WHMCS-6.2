@@ -38,7 +38,8 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign'])) {
 		file_put_contents($_SERVER['DOCUMENT_ROOT'] . $log_file, $log_text, FILE_APPEND);
 	}
 	
-	checkCbInvoiceID($_POST['m_orderid'], $gatewayParams['name']);
+	$order_id = preg_replace('/[^a-zA-Z0-9_-]/', '', substr($_POST['m_orderid'], 0, 32));
+	checkCbInvoiceID($order_id, $gatewayParams['name']);
 	
 	// проверка цифровой подписи и ip
 
@@ -92,7 +93,7 @@ if (isset($_POST['m_operation_id']) && isset($_POST['m_sign'])) {
 			case 'success':
 				echo $_POST['m_orderid'] . '|success';
 				checkCbTransID($_POST["m_operation_id"]);
-				addInvoicePayment($_POST['m_orderid'], $_POST["m_operation_id"], $_POST["m_amount"], '', $gatewaymodule);
+				addInvoicePayment($order_id, $_POST["m_operation_id"], $_POST["m_amount"], '', $gatewaymodule);
 				logTransaction($gatewayParams['name'], $_POST, 'Successful');
 				break;
 				
